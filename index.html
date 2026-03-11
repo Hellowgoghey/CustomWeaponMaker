@@ -1,1501 +1,861 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Minecraft Bedrock Weapon Addon Creator</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            padding: 30px;
-        }
-        
-        h1 {
-            color: #333;
-            margin-bottom: 10px;
-            font-size: 2em;
-        }
-        
-        .subtitle {
-            color: #666;
-            margin-bottom: 30px;
-            font-size: 0.95em;
-        }
-        
-        .section {
-            margin-bottom: 25px;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 10px;
-            border-left: 4px solid #667eea;
-        }
-        
-        .section h2 {
-            color: #333;
-            margin-bottom: 15px;
-            font-size: 1.3em;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: #555;
-            font-weight: 500;
-        }
-        
-        input[type="text"],
-        input[type="number"],
-        select {
-            width: 100%;
-            padding: 10px;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-            font-size: 14px;
-            transition: border 0.3s;
-        }
-        
-        input[type="text"]:focus,
-        input[type="number"]:focus,
-        select:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-        
-        .canvas-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-        }
-        
-        canvas {
-            border: 3px solid #333;
-            cursor: crosshair;
-            image-rendering: pixelated;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-        }
-        
-        .color-picker {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        input[type="color"] {
-            width: 60px;
-            height: 40px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        
-        .tools {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        
-        button {
-            padding: 12px 24px;
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-        
-        button:hover {
-            background: #5568d3;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-        }
-        
-        button:active {
-            transform: translateY(0);
-        }
-        
-        .btn-secondary {
-            background: #6c757d;
-        }
-        
-        .btn-secondary:hover {
-            background: #5a6268;
-        }
-        
-        .btn-success {
-            background: #28a745;
-            font-size: 16px;
-            padding: 15px 30px;
-        }
-        
-        .btn-success:hover {
-            background: #218838;
-        }
-        
-        .btn-danger {
-            background: #dc3545;
-        }
-        
-        .btn-danger:hover {
-            background: #c82333;
-        }
-        
-        .btn-debug {
-            background: #ffc107;
-            color: #000;
-        }
-        
-        .btn-debug:hover {
-            background: #e0a800;
-        }
-        
-        .grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-        
-        .info {
-            background: #e7f3ff;
-            border-left: 4px solid #2196F3;
-            padding: 12px;
-            border-radius: 5px;
-            margin-top: 10px;
-            font-size: 0.9em;
-            color: #555;
-        }
-        
-        .warning {
-            background: #fff3cd;
-            border-left: 4px solid #ffc107;
-            padding: 12px;
-            border-radius: 5px;
-            margin-top: 10px;
-            font-size: 0.9em;
-            color: #856404;
-        }
-        
-        .success {
-            background: #d4edda;
-            border-left: 4px solid #28a745;
-            padding: 12px;
-            border-radius: 5px;
-            margin-top: 10px;
-            font-size: 0.9em;
-            color: #155724;
-        }
-        
-        .effect-box, .ingredient-box {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            border: 2px solid #ddd;
-        }
-        
-        .effect-header, .ingredient-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-        
-        .effect-header h3, .ingredient-header h3 {
-            font-size: 1em;
-            color: #667eea;
-        }
-        
-        .add-btn {
-            padding: 8px 16px;
-            font-size: 13px;
-        }
-        
-        .crafting-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 5px;
-            max-width: 300px;
-            margin: 15px auto;
-        }
-        
-        .crafting-slot {
-            width: 90px;
-            height: 90px;
-            border: 3px solid #333;
-            background: #ddd;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .crafting-slot:hover {
-            background: #ccc;
-        }
-        
-        .crafting-slot.filled {
-            background: #a8d5ff;
-        }
-        
-        .recipe-toggle {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-        
-        .recipe-toggle button {
-            flex: 1;
-        }
-        
-        .recipe-toggle button.active {
-            background: #28a745;
-        }
-        
-        .debug-panel {
-            background: #2d2d2d;
-            color: #00ff00;
-            padding: 15px;
-            border-radius: 5px;
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-            max-height: 400px;
-            overflow-y: auto;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            display: none;
-        }
-        
-        @media (max-width: 768px) {
-            .grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .container {
-                padding: 20px;
-            }
-            
-            h1 {
-                font-size: 1.5em;
-            }
-            
-            .crafting-slot {
-                width: 80px;
-                height: 80px;
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MC Weapon Addon Creator</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#07070e;--sf:#0d0d1a;--card:#121220;--brd:#1e1e38;--brite:#2a2a50;
+  --gold:#f0a830;--gold2:#7a4e08;--teal:#28e0c0;--pur:#b050e8;
+  --red:#e83838;--grn:#30d870;--blu:#3098f0;
+  --txt:#c0c0e0;--dim:#484870;--dimtxt:#6868a0;
+  --px:'Press Start 2P',monospace;--mo:'VT323',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scrollbar-width:thin;scrollbar-color:var(--brite) var(--bg);}
+::-webkit-scrollbar{width:6px;}
+::-webkit-scrollbar-thumb{background:var(--brite);}
+body{font-family:var(--mo);background:var(--bg);color:var(--txt);font-size:17px;min-height:100vh;}
+
+/* ── HEADER ── */
+#hdr{
+  background:var(--sf);border-bottom:3px solid var(--brd);
+  padding:10px 20px;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;
+}
+#hdr h1{
+  font-family:var(--px);font-size:8px;color:var(--gold);
+  text-shadow:0 0 20px rgba(240,168,48,.5);letter-spacing:1px;
+}
+#hdr .sub{font-family:var(--px);font-size:5px;color:var(--teal);margin-top:4px;letter-spacing:1px;}
+.hbtns{display:flex;gap:8px;align-items:center;}
+.hbtn{
+  font-family:var(--px);font-size:6px;padding:7px 13px;border:2px solid;
+  cursor:pointer;background:transparent;letter-spacing:1px;transition:all .12s;
+}
+.hbtn-g{border-color:var(--gold);color:var(--gold);}
+.hbtn-g:hover{background:rgba(240,168,48,.12);box-shadow:0 0 14px rgba(240,168,48,.3);}
+.hbtn-t{border-color:var(--teal);color:var(--teal);}
+.hbtn-t:hover{background:rgba(40,224,192,.1);}
+
+/* ── LAYOUT ── */
+#wrap{max-width:1080px;margin:0 auto;padding:18px 16px 40px;}
+
+/* ── SECTION ── */
+.sec{border:2px solid var(--brd);background:var(--card);margin-bottom:14px;}
+.sech{
+  font-family:var(--px);font-size:6px;color:var(--teal);
+  padding:6px 10px;background:var(--sf);border-bottom:2px solid var(--brd);
+  letter-spacing:1px;display:flex;align-items:center;gap:6px;
+}
+.secb{padding:12px 14px;}
+
+/* ── FORM ── */
+.fr{margin-bottom:10px;}
+.fr label{
+  font-family:var(--px);font-size:5px;color:var(--dim);
+  display:block;margin-bottom:4px;letter-spacing:1px;text-transform:uppercase;
+}
+.fi{
+  width:100%;background:var(--bg);border:2px solid var(--brite);
+  color:var(--txt);padding:5px 8px;font-family:var(--mo);font-size:16px;outline:none;
+  transition:border .1s;
+}
+.fi:focus{border-color:var(--gold);}
+select.fi option{background:var(--card);}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+
+/* ── INFO BOXES ── */
+.note{font-size:13px;color:var(--dimtxt);margin-top:3px;line-height:1.5;}
+.note-g{font-size:13px;color:var(--grn);margin-top:5px;padding:5px 8px;border-left:3px solid var(--grn);background:rgba(48,216,112,.06);}
+.note-w{font-size:13px;color:#e8b030;margin-top:5px;padding:5px 8px;border-left:3px solid #e8b030;background:rgba(232,176,48,.06);}
+.note-t{font-size:13px;color:var(--teal);margin-top:5px;padding:5px 8px;border-left:3px solid var(--teal);background:rgba(40,224,192,.06);}
+
+/* ── CHECKBOX ROWS ── */
+.chkrow{display:flex;align-items:center;gap:8px;margin-top:10px;cursor:pointer;}
+.chkrow input[type=checkbox]{
+  width:14px;height:14px;accent-color:var(--teal);cursor:pointer;
+}
+.chkrow span{font-size:14px;color:var(--txt);}
+
+/* ── BUTTONS ── */
+.btn{
+  font-family:var(--px);font-size:6px;padding:8px 14px;border:2px solid;
+  cursor:pointer;background:transparent;letter-spacing:1px;transition:all .12s;
+}
+.btn-g{border-color:var(--gold);color:var(--gold);}
+.btn-g:hover{background:rgba(240,168,48,.12);}
+.btn-t{border-color:var(--teal);color:var(--teal);}
+.btn-t:hover{background:rgba(40,224,192,.1);}
+.btn-r{border-color:var(--red);color:var(--red);}
+.btn-r:hover{background:rgba(232,56,56,.1);}
+.btn-p{border-color:var(--pur);color:var(--pur);}
+.btn-p:hover{background:rgba(176,80,232,.1);}
+.btn-dim{border-color:var(--brite);color:var(--dimtxt);}
+.btn-dim:hover{border-color:var(--txt);color:var(--txt);}
+.btn-sm{font-size:5px;padding:5px 9px;}
+.btn-lg{font-size:8px;padding:12px 20px;}
+
+/* ── RECIPE TOGGLE ── */
+.recto{display:flex;gap:6px;margin-bottom:12px;}
+.recto .btn{flex:1;text-align:center;}
+.recto .btn.on{background:rgba(40,224,192,.12);color:var(--teal);border-color:var(--teal);}
+
+/* ── EFFECT BOX ── */
+.efbox{
+  background:var(--sf);border:2px solid var(--brd);margin-bottom:8px;padding:10px 12px;
+}
+.efhdr{
+  display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;
+}
+.efhdr span{font-family:var(--px);font-size:5px;color:var(--gold);letter-spacing:1px;}
+
+/* ── CRAFTING GRID ── */
+.cg-wrap{display:flex;flex-direction:column;align-items:center;gap:10px;}
+.crafting-grid{
+  display:grid;grid-template-columns:repeat(3,72px);
+  gap:4px;
+}
+.crafting-slot{
+  width:72px;height:72px;border:2px solid var(--brite);background:var(--bg);
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;cursor:pointer;color:var(--dimtxt);
+  transition:all .12s;word-break:break-all;text-align:center;padding:4px;
+  font-family:var(--mo);
+}
+.crafting-slot:hover{border-color:var(--teal);}
+.crafting-slot.sel{border-color:var(--gold);background:rgba(240,168,48,.06);}
+.crafting-slot.filled{background:rgba(40,224,192,.07);color:var(--teal);border-color:var(--teal);}
+.cg-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center;}
+
+/* ── CANVAS ── */
+.cv-wrap{display:flex;flex-direction:column;align-items:center;gap:12px;}
+#pixelCanvas{
+  border:3px solid var(--brd);cursor:crosshair;image-rendering:pixelated;
+  box-shadow:0 0 24px rgba(40,224,192,.1);
+}
+.cprow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.cprow label{font-family:var(--px);font-size:5px;color:var(--dim);letter-spacing:1px;}
+input[type="color"]{
+  width:48px;height:34px;border:2px solid var(--brite);
+  background:transparent;cursor:pointer;padding:2px;
+}
+#colorDisplay{font-family:var(--px);font-size:7px;color:var(--gold);}
+.cv-tools{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;}
+
+/* ── INGREDIENT BOX ── */
+.ingbox{
+  background:var(--sf);border:2px solid var(--brd);margin-bottom:8px;padding:10px 12px;
+}
+.inghdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.inghdr span{font-family:var(--px);font-size:5px;color:var(--pur);letter-spacing:1px;}
+
+/* ── EXPORT BAR ── */
+#expbar{
+  display:flex;gap:10px;justify-content:center;flex-wrap:wrap;
+  padding:18px 0 8px;
+}
+
+/* ── DEBUG ── */
+#debugSection{display:none;}
+.debug-panel{
+  background:#020208;color:#00ff88;padding:14px;
+  font-family:'Courier New',monospace;font-size:11px;
+  max-height:380px;overflow-y:auto;white-space:pre-wrap;
+  border:1px solid var(--grn);
+}
+
+/* ── SEPARATOR ── */
+.sep{width:100%;height:2px;background:var(--brd);margin:8px 0;}
+
+@media(max-width:680px){
+  .row2,.row3{grid-template-columns:1fr;}
+  #hdr h1{font-size:6px;}
+  .hbtns{display:none;}
+}
+</style>
 </head>
 <body>
-    <div class="container">
-        <h1>⚔️ Minecraft Bedrock Weapon Addon Creator</h1>
-        <p class="subtitle">✅ COOL EFFECT SYSTEM 🎯 EFFECT CHANCES! ✨ GLINT THING 🔨 RECIPES!</p>
-        
-        <div class="section">
-            <h2>📋 Basic Information</h2>
-            <div class="grid">
-                <div>
-                    <label>Addon Name:</label>
-                    <input type="text" id="addonName" value="My Weapon Addon" placeholder="My Weapon Addon">
-                </div>
-                <div>
-                    <label>Addon Description:</label>
-                    <input type="text" id="addonDesc" value="Adds a custom weapon" placeholder="Adds a custom weapon">
-                </div>
-            </div>
-        </div>
-        
-        <div class="section">
-            <h2>⚔️ Weapon Item Settings</h2>
-            <div class="grid">
-                <div>
-                    <label>Weapon Name (Display):</label>
-                    <input type="text" id="itemName" value="Custom Sword" placeholder="Custom Sword">
-                </div>
-                <div>
-                    <label>Item ID (no spaces):</label>
-                    <input type="text" id="itemId" value="custom_sword" placeholder="custom_sword">
-                </div>
-                <div>
-                    <label>Attack Damage:</label>
-                    <input type="number" id="damage" value="7" min="1" max="100">
-                    <div class="info">Base player damage is 1. Diamond Sword = 7</div>
-                </div>
-                <div>
-                    <label>Durability:</label>
-                    <input type="number" id="durability" value="500" min="1" max="9999">
-                    <div class="info">Diamond Sword = 1562</div>
-                </div>
-            </div>
-            <div style="margin-top: 15px;">
-                <label>Enchantability (0-30):</label>
-                <input type="number" id="enchantability" value="10" min="0" max="30">
-                <div class="info">Higher = better enchantments. Diamond = 10, Gold = 22</div>
-            </div>
-            <div style="margin-top: 15px;">
-                <label>
-                    <input type="checkbox" id="hasGlint" style="width: auto; margin-right: 5px;">
-                    ✨ Add enchantment glint/shimmer effect
-                </label>
-            </div>
-            <div style="margin-top: 15px;">
-                <label>
-                    <input type="checkbox" id="lightningStrike" style="width: auto; margin-right: 5px;">
-                    ⚡ Strike enemies with lightning on hit
-                </label>
-                <div class="warning">Lightning deals 5 HP damage and sets enemies on fire!</div>
-            </div>
-        </div>
-        
-        <div class="section">
-            <h2>💥 Effects on Hit (When you HIT enemies)</h2>
-            <div class="success">
-                ✅ Apply effects to enemies when you attack them!
-            </div>
-            <div id="hitEffectsContainer"></div>
-            <button class="add-btn" onclick="addHitEffect()" id="addHitEffectBtn">+ Add Effect on Hit</button>
-            <div class="info" style="margin-top: 10px;">
-                Example: 50% chance to poison enemy for 5 seconds when hit
-            </div>
-        </div>
-        
-        <div class="section">
-            <h2>✨ Effects on Self (When you hit enemies, YOU get effects)</h2>
-            <div class="success">
-                ✅ Gain buffs when attacking enemies!
-            </div>
-            <div id="selfEffectsContainer"></div>
-            <button class="add-btn" onclick="addSelfEffect()" id="addSelfEffectBtn">+ Add Self Effect</button>
-            <div class="info" style="margin-top: 10px;">
-                Example: 100% chance to get Speed II for 3 seconds when hitting enemies
-            </div>
-        </div>
-        
-        <div class="section">
-            <h2>💀 Effects on Kill (When you KILL an enemy)</h2>
-            <div class="success">
-                ✅ Get special rewards when defeating enemies!
-            </div>
-            <div id="killEffectsContainer"></div>
-            <button class="add-btn" onclick="addKillEffect()" id="addKillEffectBtn">+ Add Kill Effect</button>
-            <div class="info" style="margin-top: 10px;">
-                Example: 100% chance to heal 4 HP when killing an enemy
-            </div>
-        </div>
-        
-        <div class="section">
-            <h2>✋ Effects While Holding (Passive effects when equipped)</h2>
-            <div class="success">
-                ✅ Get constant buffs just by holding the weapon!
-            </div>
-            <div id="holdEffectsContainer"></div>
-            <button class="add-btn" onclick="addHoldEffect()" id="addHoldEffectBtn">+ Add Holding Effect</button>
-            <div class="info" style="margin-top: 10px;">
-                Example: Speed II and Jump Boost II for Wind Scythe! Effects refresh every second while held.
-            </div>
-        </div>
-        
-        <div class="section">
-            <h2>🔨 Crafting Recipe (Optional)</h2>
-            <div class="success">
-                ✅ Recipes include proper unlocking system!
-            </div>
-            <div class="recipe-toggle">
-                <button onclick="setRecipeType('none')" class="active" id="btn-none">No Recipe</button>
-                <button onclick="setRecipeType('shaped')" id="btn-shaped">Shaped (Pattern)</button>
-                <button onclick="setRecipeType('shapeless')" id="btn-shapeless">Shapeless (Any Order)</button>
-            </div>
-            
-            <div id="recipeContainer" style="display: none;">
-                <div id="shapedRecipe" style="display: none;">
-                    <p style="text-align: center; margin-bottom: 10px;">Click slots to add ingredients:</p>
-                    <div class="crafting-grid" id="craftingGrid"></div>
-                    <div style="text-align: center; margin-top: 15px;">
-                        <label>Selected Ingredient:</label>
-                        <select id="ingredientSelect" style="max-width: 300px; margin: 10px auto;">
-                            <option value="">-- Select Item --</option>
-                        </select>
-                        <button class="btn-secondary" onclick="clearSelectedSlot()">Clear Selected</button>
-                    </div>
-                </div>
-                
-                <div id="shapelessRecipe" style="display: none;">
-                    <div id="shapelessContainer"></div>
-                    <button class="add-btn" onclick="addShapelessIngredient()" id="addIngredientBtn">+ Add Ingredient</button>
-                </div>
-            </div>
-        </div>
-        
-        <div class="section">
-            <h2>🎨 Draw Your Weapon (16x16 pixels)</h2>
-            <div class="canvas-container">
-                <canvas id="pixelCanvas" width="256" height="256"></canvas>
-                <div class="color-picker">
-                    <label>Color:</label>
-                    <input type="color" id="colorPicker" value="#ff0000">
-                    <span id="colorDisplay">#ff0000</span>
-                </div>
-                <div class="tools">
-                    <button onclick="clearCanvas()">Clear Canvas</button>
-                    <button class="btn-secondary" onclick="fillCanvas()">Fill All</button>
-                    <button class="btn-secondary" onclick="importImage()">Import Image</button>
-                    <input type="file" id="imageUpload" accept="image/*" style="display:none;">
-                </div>
-            </div>
-        </div>
-        
-        <div style="text-align: center; margin-top: 30px; display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
-            <button class="btn-success" onclick="generateAddon()">🎁 Generate & Download (.mcaddon)</button>
-            <button class="btn-debug" onclick="toggleDebug()">🔍 View Generated Code</button>
-        </div>
-        
-        <div class="section" id="debugSection" style="display: none; margin-top: 20px;">
-            <h2>🔍 Debug: Generated Code Preview</h2>
-            <div class="debug-panel" id="debugPanel"></div>
-        </div>
+
+<div id="hdr">
+  <div>
+    <h1>⚔ MC WEAPON ADDON CREATOR</h1>
+    <div class="sub">NO EXPERIMENTS NEEDED · EFFECTS USE STABLE @MINECRAFT/SERVER 1.8.0</div>
+  </div>
+  <div class="hbtns">
+    <button class="hbtn hbtn-g" onclick="generateAddon()">⬇ GENERATE .MCADDON</button>
+    <button class="hbtn hbtn-t" onclick="toggleDebug()">⌨ VIEW CODE</button>
+  </div>
+</div>
+
+<div id="wrap">
+
+  <!-- BASIC INFO -->
+  <div class="sec">
+    <div class="sech">📋 ADDON INFO</div>
+    <div class="secb">
+      <div class="row2">
+        <div class="fr"><label>Addon Name</label><input type="text" class="fi" id="addonName" value="My Weapon Addon"></div>
+        <div class="fr"><label>Description</label><input type="text" class="fi" id="addonDesc" value="Adds a custom weapon"></div>
+      </div>
     </div>
+  </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <script>
-        const canvas = document.getElementById('pixelCanvas');
-        const ctx = canvas.getContext('2d');
-        const gridSize = 16;
-        const pixelSize = canvas.width / gridSize;
-        
-        let isDrawing = false;
-        let pixelData = Array(gridSize).fill(null).map(() => Array(gridSize).fill('rgba(0,0,0,0)'));
-        let hitEffectCount = 0;
-        let selfEffectCount = 0;
-        let killEffectCount = 0;
-        let holdEffectCount = 0;
-        let shapelessCount = 0;
-        let recipeType = 'none';
-        let selectedSlot = null;
-        let craftingPattern = Array(9).fill(null);
-        
-        const minecraftItems = [
-            'minecraft:diamond', 'minecraft:iron_ingot', 'minecraft:gold_ingot', 'minecraft:netherite_ingot',
-            'minecraft:stick', 'minecraft:blaze_rod', 'minecraft:string', 'minecraft:leather',
-            'minecraft:emerald', 'minecraft:obsidian', 'minecraft:ender_pearl', 'minecraft:ender_eye',
-            'minecraft:nether_star', 'minecraft:dragon_breath', 'minecraft:phantom_membrane',
-            'minecraft:planks', 'minecraft:cobblestone', 'minecraft:stone', 'minecraft:netherrack',
-            'minecraft:coal', 'minecraft:redstone', 'minecraft:lapis_lazuli', 'minecraft:quartz',
-            'minecraft:amethyst_shard', 'minecraft:prismarine_shard', 'minecraft:prismarine_crystals',
-            'minecraft:echo_shard', 'minecraft:copper_ingot', 'minecraft:flint', 'minecraft:bone'
-        ];
-        
-        const effects = [
-            'speed', 'slowness', 'haste', 'mining_fatigue', 'strength', 'instant_health',
-            'instant_damage', 'jump_boost', 'nausea', 'regeneration', 'resistance',
-            'fire_resistance', 'water_breathing', 'invisibility', 'blindness', 'night_vision',
-            'hunger', 'weakness', 'poison', 'wither', 'health_boost', 'absorption',
-            'saturation', 'levitation', 'fatal_poison', 'slow_falling'
-        ];
-        
-        ctx.fillStyle = 'white';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        drawGrid();
-        
-        function toggleDebug() {
-            const section = document.getElementById('debugSection');
-            const panel = document.getElementById('debugPanel');
-            
-            if (section.style.display === 'none') {
-                section.style.display = 'block';
-                panel.style.display = 'block';
-                
-                const code = generateCodePreview();
-                panel.textContent = code;
-                panel.scrollTop = 0;
-            } else {
-                section.style.display = 'none';
-            }
-        }
-        
-        function generateCodePreview() {
-            const itemId = document.getElementById('itemId').value.replace(/\s+/g, '_').toLowerCase();
-            const hasGlint = document.getElementById('hasGlint').checked;
-            const lightningStrike = document.getElementById('lightningStrike').checked;
-            
-            let output = "=== COMPLETE MINECRAFT BEDROCK WEAPON ADDON ===\n\n";
-            output += "✅ Features Enabled:\n";
-            if (hasGlint) output += "✨ Enchantment Glint\n";
-            if (lightningStrike) output += "⚡ Lightning Strike on Hit\n";
-            if (holdEffectCount > 0) output += `✋ Holding Effects: ${holdEffectCount}\n`;
-            if (hitEffectCount > 0) output += `💥 Effects on Hit: ${hitEffectCount}\n`;
-            if (selfEffectCount > 0) output += `✨ Self Effects: ${selfEffectCount}\n`;
-            if (killEffectCount > 0) output += `💀 Kill Effects: ${killEffectCount}\n`;
-            if (recipeType !== 'none') output += `🔨 ${recipeType === 'shaped' ? 'Shaped' : 'Shapeless'} Recipe\n`;
-            output += "\n";
-            
-            output += "=== BEHAVIOR PACK: items/" + itemId + ".json ===\n";
-            output += "- Weapon components with damage\n";
-            output += "- Durability and enchantability\n";
-            if (hasGlint) output += "- Enchantment glint enabled\n";
-            output += "\n";
-            
-            if (hitEffectCount > 0 || selfEffectCount > 0 || killEffectCount > 0) {
-                output += "=== EFFECTS SCRIPT ===\n";
-                output += "scripts/" + itemId + "_effects.js\n";
-                if (hitEffectCount > 0) output += `- ${hitEffectCount} effects applied to hit enemies\n`;
-                if (selfEffectCount > 0) output += `- ${selfEffectCount} self-buff effects\n`;
-                if (killEffectCount > 0) output += `- ${killEffectCount} effects on kill\n`;
-                output += "- Probability system for effect chances\n";
-                output += "\n";
-            }
-            
-            if (recipeType !== 'none') {
-                output += "=== RECIPE ===\n";
-                output += "recipes/" + itemId + "_recipe.json\n";
-                output += "- Includes unlock array\n";
-                output += "\n";
-            }
-            
-            output += "=== RESOURCE PACK ===\n";
-            output += "- Texture: textures/items/" + itemId + ".png\n";
-            output += "- Language: texts/en_US.lang\n";
-            
-            return output;
-        }
-        
-        function initCraftingGrid() {
-            const grid = document.getElementById('craftingGrid');
-            grid.innerHTML = '';
-            for (let i = 0; i < 9; i++) {
-                const slot = document.createElement('div');
-                slot.className = 'crafting-slot';
-                slot.dataset.index = i;
-                slot.onclick = () => selectSlot(i);
-                grid.appendChild(slot);
-            }
-            updateCraftingGrid();
-        }
-        
-        function selectSlot(index) {
-            selectedSlot = index;
-            const slots = document.querySelectorAll('.crafting-slot');
-            slots.forEach((s, i) => {
-                s.style.border = i === index ? '3px solid #667eea' : '3px solid #333';
-            });
-        }
-        
-        function updateCraftingGrid() {
-            const slots = document.querySelectorAll('.crafting-slot');
-            slots.forEach((slot, i) => {
-                if (craftingPattern[i]) {
-                    slot.textContent = craftingPattern[i].split(':')[1] || craftingPattern[i];
-                    slot.className = 'crafting-slot filled';
-                } else {
-                    slot.textContent = '';
-                    slot.className = 'crafting-slot';
-                }
-            });
-        }
-        
-        function clearSelectedSlot() {
-            if (selectedSlot !== null) {
-                craftingPattern[selectedSlot] = null;
-                updateCraftingGrid();
-            }
-        }
-        
-        const ingredientSelect = document.getElementById('ingredientSelect');
-        minecraftItems.forEach(item => {
-            const option = document.createElement('option');
-            option.value = item;
-            option.textContent = item.replace('minecraft:', '').replace(/_/g, ' ');
-            ingredientSelect.appendChild(option);
-        });
-        
-        const customOption = document.createElement('option');
-        customOption.value = 'CUSTOM';
-        customOption.textContent = '-- Type Custom Item ID --';
-        ingredientSelect.appendChild(customOption);
-        
-        ingredientSelect.addEventListener('change', (e) => {
-            if (selectedSlot !== null && e.target.value) {
-                if (e.target.value === 'CUSTOM') {
-                    const customId = prompt('Enter custom item ID (e.g., minecraft:stone or custom:my_item):');
-                    if (customId && customId.trim()) {
-                        craftingPattern[selectedSlot] = customId.trim();
-                        updateCraftingGrid();
-                    }
-                } else {
-                    craftingPattern[selectedSlot] = e.target.value;
-                    updateCraftingGrid();
-                }
-            }
-        });
-        
-        function setRecipeType(type) {
-            recipeType = type;
-            document.getElementById('btn-none').className = type === 'none' ? 'active' : '';
-            document.getElementById('btn-shaped').className = type === 'shaped' ? 'active' : '';
-            document.getElementById('btn-shapeless').className = type === 'shapeless' ? 'active' : '';
-            
-            document.getElementById('recipeContainer').style.display = type === 'none' ? 'none' : 'block';
-            document.getElementById('shapedRecipe').style.display = type === 'shaped' ? 'block' : 'none';
-            document.getElementById('shapelessRecipe').style.display = type === 'shapeless' ? 'block' : 'none';
-            
-            if (type === 'shaped') {
-                initCraftingGrid();
-            }
-        }
-        
-        function addHitEffect() {
-            hitEffectCount++;
-            const container = document.getElementById('hitEffectsContainer');
-            const effectBox = document.createElement('div');
-            effectBox.className = 'effect-box';
-            effectBox.id = `hiteffect-${hitEffectCount}`;
-            
-            let effectOptions = '';
-            effects.forEach(eff => {
-                effectOptions += `<option value="${eff}">${eff.replace(/_/g, ' ')}</option>`;
-            });
-            
-            effectBox.innerHTML = `
-                <div class="effect-header">
-                    <h3>Hit Effect ${hitEffectCount}</h3>
-                    <button class="btn-danger" onclick="removeHitEffect(${hitEffectCount})" style="padding: 6px 12px; font-size: 12px;">Remove</button>
-                </div>
-                <div class="grid">
-                    <div>
-                        <label>Effect Type:</label>
-                        <select id="hiteffectType-${hitEffectCount}">
-                            ${effectOptions}
-                        </select>
-                    </div>
-                    <div>
-                        <label>Duration (seconds):</label>
-                        <input type="number" id="hiteffectDuration-${hitEffectCount}" value="5" min="1" max="999">
-                    </div>
-                    <div>
-                        <label>Amplifier (0 = Level I, 1 = Level II):</label>
-                        <input type="number" id="hiteffectAmplifier-${hitEffectCount}" value="0" min="0" max="10">
-                    </div>
-                    <div>
-                        <label>Chance (%):</label>
-                        <input type="number" id="hiteffectChance-${hitEffectCount}" value="100" min="1" max="100">
-                        <div class="info">100 = always, 50 = 50% chance, etc.</div>
-                    </div>
-                </div>
-            `;
-            
-            container.appendChild(effectBox);
-        }
-        
-        function removeHitEffect(id) {
-            const effectBox = document.getElementById(`hiteffect-${id}`);
-            effectBox.remove();
-            hitEffectCount--;
-        }
-        
-        function addSelfEffect() {
-            selfEffectCount++;
-            const container = document.getElementById('selfEffectsContainer');
-            const effectBox = document.createElement('div');
-            effectBox.className = 'effect-box';
-            effectBox.id = `selfeffect-${selfEffectCount}`;
-            
-            let effectOptions = '';
-            effects.forEach(eff => {
-                effectOptions += `<option value="${eff}">${eff.replace(/_/g, ' ')}</option>`;
-            });
-            
-            effectBox.innerHTML = `
-                <div class="effect-header">
-                    <h3>Self Effect ${selfEffectCount}</h3>
-                    <button class="btn-danger" onclick="removeSelfEffect(${selfEffectCount})" style="padding: 6px 12px; font-size: 12px;">Remove</button>
-                </div>
-                <div class="grid">
-                    <div>
-                        <label>Effect Type:</label>
-                        <select id="selfeffectType-${selfEffectCount}">
-                            ${effectOptions}
-                        </select>
-                    </div>
-                    <div>
-                        <label>Duration (seconds):</label>
-                        <input type="number" id="selfeffectDuration-${selfEffectCount}" value="3" min="1" max="999">
-                    </div>
-                    <div>
-                        <label>Amplifier (0 = Level I, 1 = Level II):</label>
-                        <input type="number" id="selfeffectAmplifier-${selfEffectCount}" value="0" min="0" max="10">
-                    </div>
-                    <div>
-                        <label>Chance (%):</label>
-                        <input type="number" id="selfeffectChance-${selfEffectCount}" value="100" min="1" max="100">
-                        <div class="info">100 = always, 50 = 50% chance, etc.</div>
-                    </div>
-                </div>
-            `;
-            
-            container.appendChild(effectBox);
-        }
-        
-        function removeSelfEffect(id) {
-            const effectBox = document.getElementById(`selfeffect-${id}`);
-            effectBox.remove();
-            selfEffectCount--;
-        }
-        
-        function addKillEffect() {
-            killEffectCount++;
-            const container = document.getElementById('killEffectsContainer');
-            const effectBox = document.createElement('div');
-            effectBox.className = 'effect-box';
-            effectBox.id = `killeffect-${killEffectCount}`;
-            
-            let effectOptions = '';
-            effects.forEach(eff => {
-                effectOptions += `<option value="${eff}">${eff.replace(/_/g, ' ')}</option>`;
-            });
-            
-            effectBox.innerHTML = `
-                <div class="effect-header">
-                    <h3>Kill Effect ${killEffectCount}</h3>
-                    <button class="btn-danger" onclick="removeKillEffect(${killEffectCount})" style="padding: 6px 12px; font-size: 12px;">Remove</button>
-                </div>
-                <div class="grid">
-                    <div>
-                        <label>Effect Type:</label>
-                        <select id="killeffectType-${killEffectCount}">
-                            ${effectOptions}
-                        </select>
-                    </div>
-                    <div>
-                        <label>Duration (seconds):</label>
-                        <input type="number" id="killeffectDuration-${killEffectCount}" value="10" min="1" max="999">
-                    </div>
-                    <div>
-                        <label>Amplifier (0 = Level I, 1 = Level II):</label>
-                        <input type="number" id="killeffectAmplifier-${killEffectCount}" value="0" min="0" max="10">
-                    </div>
-                    <div>
-                        <label>Chance (%):</label>
-                        <input type="number" id="killeffectChance-${killEffectCount}" value="100" min="1" max="100">
-                        <div class="info">100 = always, 50 = 50% chance, etc.</div>
-                    </div>
-                </div>
-            `;
-            
-            container.appendChild(effectBox);
-        }
-        
-        function removeKillEffect(id) {
-            const effectBox = document.getElementById(`killeffect-${id}`);
-            effectBox.remove();
-            killEffectCount--;
-        }
-        
-        function addHoldEffect() {
-            holdEffectCount++;
-            const container = document.getElementById('holdEffectsContainer');
-            const effectBox = document.createElement('div');
-            effectBox.className = 'effect-box';
-            effectBox.id = `holdeffect-${holdEffectCount}`;
-            
-            let effectOptions = '';
-            effects.forEach(eff => {
-                effectOptions += `<option value="${eff}">${eff.replace(/_/g, ' ')}</option>`;
-            });
-            
-            effectBox.innerHTML = `
-                <div class="effect-header">
-                    <h3>Holding Effect ${holdEffectCount}</h3>
-                    <button class="btn-danger" onclick="removeHoldEffect(${holdEffectCount})" style="padding: 6px 12px; font-size: 12px;">Remove</button>
-                </div>
-                <div class="grid">
-                    <div>
-                        <label>Effect Type:</label>
-                        <select id="holdeffectType-${holdEffectCount}">
-                            ${effectOptions}
-                        </select>
-                    </div>
-                    <div>
-                        <label>Amplifier (0 = Level I, 1 = Level II):</label>
-                        <input type="number" id="holdeffectAmplifier-${holdEffectCount}" value="0" min="0" max="10">
-                    </div>
-                </div>
-                <div class="info" style="margin-top: 10px;">Effect is constantly refreshed while holding the weapon</div>
-            `;
-            
-            container.appendChild(effectBox);
-        }
-        
-        function removeHoldEffect(id) {
-            const effectBox = document.getElementById(`holdeffect-${id}`);
-            effectBox.remove();
-            holdEffectCount--;
-        }
-        
-        function addShapelessIngredient() {
-            if (shapelessCount >= 9) {
-                alert('Maximum 9 ingredients allowed!');
-                return;
-            }
-            
-            shapelessCount++;
-            const container = document.getElementById('shapelessContainer');
-            const ingredientBox = document.createElement('div');
-            ingredientBox.className = 'ingredient-box';
-            ingredientBox.id = `ingredient-${shapelessCount}`;
-            
-            let itemOptions = '';
-            minecraftItems.forEach(item => {
-                itemOptions += `<option value="${item}">${item.replace('minecraft:', '').replace(/_/g, ' ')}</option>`;
-            });
-            itemOptions += `<option value="CUSTOM">-- Type Custom Item ID --</option>`;
-            
-            ingredientBox.innerHTML = `
-                <div class="ingredient-header">
-                    <h3>Ingredient ${shapelessCount}</h3>
-                    <button class="btn-danger" onclick="removeIngredient(${shapelessCount})" style="padding: 6px 12px; font-size: 12px;">Remove</button>
-                </div>
-                <div class="grid">
-                    <div>
-                        <label>Item:</label>
-                        <select id="ingredientItem-${shapelessCount}" onchange="handleShapelessItemChange(${shapelessCount})">
-                            ${itemOptions}
-                        </select>
-                        <input type="text" id="ingredientItemCustom-${shapelessCount}" placeholder="e.g., custom:my_item" style="display: none; margin-top: 5px;">
-                    </div>
-                    <div>
-                        <label>Count:</label>
-                        <input type="number" id="ingredientCount-${shapelessCount}" value="1" min="1" max="64">
-                    </div>
-                </div>
-            `;
-            
-            container.appendChild(ingredientBox);
-            
-            if (shapelessCount >= 9) {
-                document.getElementById('addIngredientBtn').disabled = true;
-                document.getElementById('addIngredientBtn').style.opacity = '0.5';
-            }
-        }
-        
-        function removeIngredient(id) {
-            const ingredientBox = document.getElementById(`ingredient-${id}`);
-            ingredientBox.remove();
-            shapelessCount--;
-            
-            document.getElementById('addIngredientBtn').disabled = false;
-            document.getElementById('addIngredientBtn').style.opacity = '1';
-        }
-        
-        function handleShapelessItemChange(id) {
-            const select = document.getElementById(`ingredientItem-${id}`);
-            const customInput = document.getElementById(`ingredientItemCustom-${id}`);
-            
-            if (select.value === 'CUSTOM') {
-                customInput.style.display = 'block';
-                customInput.focus();
-            } else {
-                customInput.style.display = 'none';
-                customInput.value = '';
-            }
-        }
-        
-        function drawGrid() {
-            ctx.strokeStyle = '#ddd';
-            ctx.lineWidth = 1;
-            for (let i = 0; i <= gridSize; i++) {
-                ctx.beginPath();
-                ctx.moveTo(i * pixelSize, 0);
-                ctx.lineTo(i * pixelSize, canvas.height);
-                ctx.stroke();
-                
-                ctx.beginPath();
-                ctx.moveTo(0, i * pixelSize);
-                ctx.lineTo(canvas.width, i * pixelSize);
-                ctx.stroke();
-            }
-        }
-        
-        function drawPixel(x, y, color) {
-            ctx.fillStyle = color;
-            ctx.fillRect(x * pixelSize, y * pixelSize, pixelSize, pixelSize);
-            pixelData[y][x] = color;
-            drawGrid();
-        }
-        
-        canvas.addEventListener('mousedown', (e) => {
-            isDrawing = true;
-            draw(e);
-        });
-        
-        canvas.addEventListener('mousemove', (e) => {
-            if (isDrawing) draw(e);
-        });
-        
-        canvas.addEventListener('mouseup', () => {
-            isDrawing = false;
-        });
-        
-        canvas.addEventListener('mouseleave', () => {
-            isDrawing = false;
-        });
-        
-        function draw(e) {
-            const rect = canvas.getBoundingClientRect();
-            const x = Math.floor((e.clientX - rect.left) / pixelSize);
-            const y = Math.floor((e.clientY - rect.top) / pixelSize);
-            
-            if (x >= 0 && x < gridSize && y >= 0 && y < gridSize) {
-                const color = document.getElementById('colorPicker').value;
-                drawPixel(x, y, color);
-            }
-        }
-        
-        document.getElementById('colorPicker').addEventListener('input', (e) => {
-            document.getElementById('colorDisplay').textContent = e.target.value;
-        });
-        
-        function clearCanvas() {
-            ctx.fillStyle = 'white';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            pixelData = Array(gridSize).fill(null).map(() => Array(gridSize).fill('rgba(0,0,0,0)'));
-            drawGrid();
-        }
-        
-        function fillCanvas() {
-            const color = document.getElementById('colorPicker').value;
-            for (let y = 0; y < gridSize; y++) {
-                for (let x = 0; x < gridSize; x++) {
-                    drawPixel(x, y, color);
-                }
-            }
-        }
-        
-        function importImage() {
-            document.getElementById('imageUpload').click();
-        }
-        
-        document.getElementById('imageUpload').addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    const img = new Image();
-                    img.onload = () => {
-                        const tempCanvas = document.createElement('canvas');
-                        tempCanvas.width = gridSize;
-                        tempCanvas.height = gridSize;
-                        const tempCtx = tempCanvas.getContext('2d');
-                        tempCtx.drawImage(img, 0, 0, gridSize, gridSize);
-                        
-                        const imageData = tempCtx.getImageData(0, 0, gridSize, gridSize);
-                        clearCanvas();
-                        
-                        for (let y = 0; y < gridSize; y++) {
-                            for (let x = 0; x < gridSize; x++) {
-                                const i = (y * gridSize + x) * 4;
-                                const r = imageData.data[i];
-                                const g = imageData.data[i + 1];
-                                const b = imageData.data[i + 2];
-                                const a = imageData.data[i + 3];
-                                
-                                if (a > 0) {
-                                    const color = `rgba(${r},${g},${b},${a/255})`;
-                                    drawPixel(x, y, color);
-                                }
-                            }
-                        }
-                    };
-                    img.src = event.target.result;
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-        
-        function generateUUID() {
-            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-                const r = Math.random() * 16 | 0;
-                const v = c == 'x' ? r : (r & 0x3 | 0x8);
-                return v.toString(16);
-            });
-        }
-        
-        function canvasToBlob() {
-            return new Promise((resolve) => {
-                const tempCanvas = document.createElement('canvas');
-                tempCanvas.width = gridSize;
-                tempCanvas.height = gridSize;
-                const tempCtx = tempCanvas.getContext('2d');
-                
-                for (let y = 0; y < gridSize; y++) {
-                    for (let x = 0; x < gridSize; x++) {
-                        tempCtx.fillStyle = pixelData[y][x];
-                        tempCtx.fillRect(x, y, 1, 1);
-                    }
-                }
-                
-                tempCanvas.toBlob(resolve);
-            });
-        }
-        
-        async function generateAddon() {
-            const addonName = document.getElementById('addonName').value;
-            const addonDesc = document.getElementById('addonDesc').value;
-            const itemName = document.getElementById('itemName').value;
-            const itemId = document.getElementById('itemId').value.replace(/\s+/g, '_').toLowerCase();
-            const damage = parseInt(document.getElementById('damage').value);
-            const durability = parseInt(document.getElementById('durability').value);
-            const enchantability = parseInt(document.getElementById('enchantability').value);
-            const hasGlint = document.getElementById('hasGlint').checked;
-            const lightningStrike = document.getElementById('lightningStrike').checked;
-            
-            const bpHeaderUUID = generateUUID();
-            const bpModuleUUID = generateUUID();
-            const rpHeaderUUID = generateUUID();
-            const rpModuleUUID = generateUUID();
-            
-            // Collect all effects
-            const hitEffects = [];
-            const selfEffects = [];
-            const killEffects = [];
-            const holdEffects = [];
-            
-            for (let i = 1; i <= hitEffectCount; i++) {
-                const effectBox = document.getElementById(`hiteffect-${i}`);
-                if (effectBox) {
-                    hitEffects.push({
-                        type: document.getElementById(`hiteffectType-${i}`).value,
-                        duration: parseInt(document.getElementById(`hiteffectDuration-${i}`).value),
-                        amplifier: parseInt(document.getElementById(`hiteffectAmplifier-${i}`).value),
-                        chance: parseInt(document.getElementById(`hiteffectChance-${i}`).value)
-                    });
-                }
-            }
-            
-            for (let i = 1; i <= selfEffectCount; i++) {
-                const effectBox = document.getElementById(`selfeffect-${i}`);
-                if (effectBox) {
-                    selfEffects.push({
-                        type: document.getElementById(`selfeffectType-${i}`).value,
-                        duration: parseInt(document.getElementById(`selfeffectDuration-${i}`).value),
-                        amplifier: parseInt(document.getElementById(`selfeffectAmplifier-${i}`).value),
-                        chance: parseInt(document.getElementById(`selfeffectChance-${i}`).value)
-                    });
-                }
-            }
-            
-            for (let i = 1; i <= killEffectCount; i++) {
-                const effectBox = document.getElementById(`killeffect-${i}`);
-                if (effectBox) {
-                    killEffects.push({
-                        type: document.getElementById(`killeffectType-${i}`).value,
-                        duration: parseInt(document.getElementById(`killeffectDuration-${i}`).value),
-                        amplifier: parseInt(document.getElementById(`killeffectAmplifier-${i}`).value),
-                        chance: parseInt(document.getElementById(`killeffectChance-${i}`).value)
-                    });
-                }
-            }
-            
-            for (let i = 1; i <= holdEffectCount; i++) {
-                const effectBox = document.getElementById(`holdeffect-${i}`);
-                if (effectBox) {
-                    holdEffects.push({
-                        type: document.getElementById(`holdeffectType-${i}`).value,
-                        amplifier: parseInt(document.getElementById(`holdeffectAmplifier-${i}`).value)
-                    });
-                }
-            }
-            
-            const hasEffects = hitEffects.length > 0 || selfEffects.length > 0 || killEffects.length > 0 || lightningStrike || holdEffects.length > 0;
-            
-            const bpManifest = {
-                format_version: 2,
-                header: {
-                    name: addonName,
-                    description: addonDesc,
-                    uuid: bpHeaderUUID,
-                    version: [1, 0, 0],
-                    min_engine_version: [1, 20, 50]
-                },
-                modules: [
-                    {
-                        type: "data",
-                        uuid: bpModuleUUID,
-                        version: [1, 0, 0]
-                    }
-                ],
-                dependencies: [
-                    {
-                        uuid: rpHeaderUUID,
-                        version: [1, 0, 0]
-                    }
-                ]
-            };
-            
-            if (hasEffects) {
-                bpManifest.modules.push({
-                    type: "script",
-                    language: "javascript",
-                    uuid: generateUUID(),
-                    version: [1, 0, 0],
-                    entry: `scripts/${itemId}_effects.js`
-                });
-                
-                bpManifest.dependencies.push({
-                    module_name: "@minecraft/server",
-                    version: "1.8.0"
-                });
-            }
-            
-            const rpManifest = {
-                format_version: 2,
-                header: {
-                    name: addonName + " Resources",
-                    description: "Textures for " + addonName,
-                    uuid: rpHeaderUUID,
-                    version: [1, 0, 0],
-                    min_engine_version: [1, 20, 50]
-                },
-                modules: [
-                    {
-                        type: "resources",
-                        uuid: rpModuleUUID,
-                        version: [1, 0, 0]
-                    }
-                ]
-            };
-            
-            const itemComponents = {
-                "minecraft:icon": {
-                    texture: itemId
-                },
-                "minecraft:display_name": {
-                    value: itemName
-                },
-                "minecraft:max_stack_size": 1,
-                "minecraft:hand_equipped": true,
-                "minecraft:damage": damage,
-                "minecraft:durability": {
-                    max_durability: durability
-                },
-                "minecraft:enchantable": {
-                    value: enchantability,
-                    slot: "sword"
-                },
-                "minecraft:tags": {
-                    tags: ["minecraft:is_sword"]
-                }
-            };
-            
-            if (hasGlint) {
-                itemComponents["minecraft:glint"] = true;
-            }
-            
-            const itemJson = {
-                format_version: "1.20.50",
-                "minecraft:item": {
-                    description: {
-                        identifier: `custom:${itemId}`,
-                        menu_category: {
-                            category: "equipment",
-                            group: "itemGroup.name.sword"
-                        }
-                    },
-                    components: itemComponents
-                }
-            };
-            
-            const textureJson = {
-                resource_pack_name: addonName,
-                texture_name: "atlas.items",
-                texture_data: {}
-            };
-            textureJson.texture_data[itemId] = {
-                textures: `textures/items/${itemId}`
-            };
-            
-            const langFile = `item.custom:${itemId}.name=${itemName}`;
-            
-            const iconCanvas = document.createElement('canvas');
-            iconCanvas.width = 256;
-            iconCanvas.height = 256;
-            const iconCtx = iconCanvas.getContext('2d');
-            iconCtx.fillStyle = '#667eea';
-            iconCtx.fillRect(0, 0, 256, 256);
-            iconCtx.fillStyle = 'white';
-            iconCtx.font = 'bold 100px Arial';
-            iconCtx.textAlign = 'center';
-            iconCtx.textBaseline = 'middle';
-            iconCtx.fillText('⚔️', 128, 128);
-            
-            const zip = new JSZip();
-            
-            const bpFolder = zip.folder(addonName + " BP");
-            bpFolder.file('manifest.json', JSON.stringify(bpManifest, null, 2));
-            bpFolder.file(`items/${itemId}.json`, JSON.stringify(itemJson, null, 2));
-            
-            if (hasEffects) {
-                let scriptContent = `import { world, system } from '@minecraft/server';
+  <!-- WEAPON SETTINGS -->
+  <div class="sec">
+    <div class="sech">⚔ WEAPON SETTINGS</div>
+    <div class="secb">
+      <div class="row2">
+        <div class="fr"><label>Display Name</label><input type="text" class="fi" id="itemName" value="Custom Sword"></div>
+        <div class="fr"><label>Item ID (no spaces)</label><input type="text" class="fi" id="itemId" value="custom_sword"></div>
+        <div class="fr">
+          <label>Attack Damage</label>
+          <input type="number" class="fi" id="damage" value="7" min="1" max="100">
+          <div class="note">Diamond Sword = 7 · Base fist = 1</div>
+        </div>
+        <div class="fr">
+          <label>Durability</label>
+          <input type="number" class="fi" id="durability" value="500" min="1" max="9999">
+          <div class="note">Diamond Sword = 1562</div>
+        </div>
+      </div>
+      <div class="fr" style="margin-top:4px;">
+        <label>Enchantability (0–30)</label>
+        <input type="number" class="fi" id="enchantability" value="10" min="0" max="30" style="max-width:140px;">
+        <div class="note">Diamond = 10 · Gold = 22 · Higher = better enchants</div>
+      </div>
+      <div class="sep"></div>
+      <label class="chkrow"><input type="checkbox" id="hasGlint"><span>✨ Enchantment glint / shimmer effect</span></label>
+      <label class="chkrow" style="margin-top:6px;"><input type="checkbox" id="lightningStrike"><span>⚡ Strike enemies with lightning on hit</span></label>
+      <div class="note-w" style="margin-top:6px;">Lightning deals 5 HP + sets enemies on fire</div>
+    </div>
+  </div>
 
-// Track last attacker for kill detection
+  <!-- HIT EFFECTS -->
+  <div class="sec">
+    <div class="sech">💥 EFFECTS ON HIT</div>
+    <div class="secb">
+      <div class="note-g">Apply effects to enemies when you attack them</div>
+      <div style="margin-top:10px;" id="hitEffectsContainer"></div>
+      <button class="btn btn-t btn-sm" onclick="addHitEffect()" style="margin-top:4px;">+ ADD HIT EFFECT</button>
+      <div class="note" style="margin-top:6px;">Example: 50% chance to poison enemy for 5 seconds</div>
+    </div>
+  </div>
+
+  <!-- SELF EFFECTS -->
+  <div class="sec">
+    <div class="sech">✨ EFFECTS ON SELF</div>
+    <div class="secb">
+      <div class="note-g">Gain buffs on yourself when attacking enemies</div>
+      <div style="margin-top:10px;" id="selfEffectsContainer"></div>
+      <button class="btn btn-p btn-sm" onclick="addSelfEffect()" style="margin-top:4px;">+ ADD SELF EFFECT</button>
+      <div class="note" style="margin-top:6px;">Example: 100% chance to get Speed II for 3s on hit</div>
+    </div>
+  </div>
+
+  <!-- KILL EFFECTS -->
+  <div class="sec">
+    <div class="sech">💀 EFFECTS ON KILL</div>
+    <div class="secb">
+      <div class="note-g">Get special rewards when defeating enemies</div>
+      <div style="margin-top:10px;" id="killEffectsContainer"></div>
+      <button class="btn btn-r btn-sm" onclick="addKillEffect()" style="margin-top:4px;">+ ADD KILL EFFECT</button>
+      <div class="note" style="margin-top:6px;">Example: 100% chance to heal 4 HP on kill</div>
+    </div>
+  </div>
+
+  <!-- HOLD EFFECTS -->
+  <div class="sec">
+    <div class="sech">✋ EFFECTS WHILE HOLDING</div>
+    <div class="secb">
+      <div class="note-g">Passive buffs just from holding the weapon</div>
+      <div style="margin-top:10px;" id="holdEffectsContainer"></div>
+      <button class="btn btn-t btn-sm" onclick="addHoldEffect()" style="margin-top:4px;">+ ADD HOLDING EFFECT</button>
+      <div class="note" style="margin-top:6px;">Effects refresh every second while held · Example: Speed II + Jump Boost</div>
+    </div>
+  </div>
+
+  <!-- RECIPE -->
+  <div class="sec">
+    <div class="sech">🔨 CRAFTING RECIPE</div>
+    <div class="secb">
+      <div class="note-g" style="margin-bottom:12px;">Recipes include proper unlock system</div>
+      <div class="recto">
+        <button class="btn btn-t on" id="btn-none" onclick="setRecipeType('none')">NO RECIPE</button>
+        <button class="btn btn-dim" id="btn-shaped" onclick="setRecipeType('shaped')">SHAPED</button>
+        <button class="btn btn-dim" id="btn-shapeless" onclick="setRecipeType('shapeless')">SHAPELESS</button>
+      </div>
+      <div id="recipeContainer" style="display:none;">
+        <div id="shapedRecipe" style="display:none;">
+          <div class="note" style="text-align:center;margin-bottom:10px;">Click a slot to select it, then pick an item below</div>
+          <div class="cg-wrap">
+            <div class="crafting-grid" id="craftingGrid"></div>
+            <div class="cg-controls">
+              <div class="fr" style="min-width:220px;margin:0;">
+                <label style="font-family:var(--px);font-size:5px;color:var(--dim);display:block;margin-bottom:3px;letter-spacing:1px;">ITEM FOR SELECTED SLOT</label>
+                <select class="fi" id="ingredientSelect" style="font-size:14px;"></select>
+              </div>
+              <button class="btn btn-r btn-sm" onclick="clearSelectedSlot()">CLEAR SLOT</button>
+            </div>
+          </div>
+        </div>
+        <div id="shapelessRecipe" style="display:none;">
+          <div id="shapelessContainer"></div>
+          <button class="btn btn-t btn-sm" onclick="addShapelessIngredient()" id="addIngredientBtn" style="margin-top:4px;">+ ADD INGREDIENT</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PIXEL EDITOR -->
+  <div class="sec">
+    <div class="sech">🎨 WEAPON TEXTURE (16×16)</div>
+    <div class="secb">
+      <div class="cv-wrap">
+        <canvas id="pixelCanvas" width="256" height="256"></canvas>
+        <div class="cprow">
+          <label>COLOR:</label>
+          <input type="color" id="colorPicker" value="#ff0000">
+          <span id="colorDisplay">#ff0000</span>
+        </div>
+        <div class="cv-tools">
+          <button class="btn btn-r btn-sm" onclick="clearCanvas()">✕ CLEAR</button>
+          <button class="btn btn-dim btn-sm" onclick="fillCanvas()">⬛ FILL ALL</button>
+          <button class="btn btn-dim btn-sm" onclick="importImage()">⬆ IMPORT IMAGE</button>
+          <input type="file" id="imageUpload" accept="image/*" style="display:none;">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EXPORT -->
+  <div id="expbar">
+    <button class="btn btn-g btn-lg" onclick="generateAddon()">⬇ GENERATE &amp; DOWNLOAD .MCADDON</button>
+    <button class="btn btn-t" onclick="toggleDebug()">⌨ VIEW GENERATED CODE</button>
+  </div>
+
+  <!-- DEBUG -->
+  <div class="sec" id="debugSection">
+    <div class="sech">⌨ GENERATED CODE PREVIEW</div>
+    <div class="secb" style="padding:0;">
+      <div class="debug-panel" id="debugPanel"></div>
+    </div>
+  </div>
+
+</div><!-- /wrap -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+const canvas = document.getElementById('pixelCanvas');
+const ctx = canvas.getContext('2d');
+const gridSize = 16;
+const pixelSize = canvas.width / gridSize;
+
+let isDrawing = false;
+let pixelData = Array(gridSize).fill(null).map(() => Array(gridSize).fill('rgba(0,0,0,0)'));
+let hitEffectCount = 0;
+let selfEffectCount = 0;
+let killEffectCount = 0;
+let holdEffectCount = 0;
+let shapelessCount = 0;
+let recipeType = 'none';
+let selectedSlot = null;
+let craftingPattern = Array(9).fill(null);
+
+const minecraftItems = [
+    'minecraft:diamond','minecraft:iron_ingot','minecraft:gold_ingot','minecraft:netherite_ingot',
+    'minecraft:stick','minecraft:blaze_rod','minecraft:string','minecraft:leather',
+    'minecraft:emerald','minecraft:obsidian','minecraft:ender_pearl','minecraft:ender_eye',
+    'minecraft:nether_star','minecraft:dragon_breath','minecraft:phantom_membrane',
+    'minecraft:planks','minecraft:cobblestone','minecraft:stone','minecraft:netherrack',
+    'minecraft:coal','minecraft:redstone','minecraft:lapis_lazuli','minecraft:quartz',
+    'minecraft:amethyst_shard','minecraft:prismarine_shard','minecraft:prismarine_crystals',
+    'minecraft:echo_shard','minecraft:copper_ingot','minecraft:flint','minecraft:bone'
+];
+
+const effects = [
+    'speed','slowness','haste','mining_fatigue','strength','instant_health',
+    'instant_damage','jump_boost','nausea','regeneration','resistance',
+    'fire_resistance','water_breathing','invisibility','blindness','night_vision',
+    'hunger','weakness','poison','wither','health_boost','absorption',
+    'saturation','levitation','fatal_poison','slow_falling'
+];
+
+ctx.fillStyle = 'white';
+ctx.fillRect(0, 0, canvas.width, canvas.height);
+drawGrid();
+
+function toggleDebug(){
+    const section=document.getElementById('debugSection');
+    const panel=document.getElementById('debugPanel');
+    if(section.style.display==='none'||section.style.display===''){
+        section.style.display='block';
+        panel.style.display='block';
+        panel.textContent=generateCodePreview();
+        panel.scrollTop=0;
+        section.scrollIntoView({behavior:'smooth'});
+    } else {
+        section.style.display='none';
+    }
+}
+
+function generateCodePreview(){
+    const itemId=document.getElementById('itemId').value.replace(/\s+/g,'_').toLowerCase();
+    const hasGlint=document.getElementById('hasGlint').checked;
+    const lightningStrike=document.getElementById('lightningStrike').checked;
+    let output="=== MC WEAPON ADDON PREVIEW ===\n\n✅ Features:\n";
+    if(hasGlint)output+="✨ Enchantment Glint\n";
+    if(lightningStrike)output+="⚡ Lightning Strike\n";
+    if(holdEffectCount>0)output+=`✋ Holding Effects: ${holdEffectCount}\n`;
+    if(hitEffectCount>0)output+=`💥 Hit Effects: ${hitEffectCount}\n`;
+    if(selfEffectCount>0)output+=`✨ Self Effects: ${selfEffectCount}\n`;
+    if(killEffectCount>0)output+=`💀 Kill Effects: ${killEffectCount}\n`;
+    if(recipeType!=='none')output+=`🔨 ${recipeType==='shaped'?'Shaped':'Shapeless'} Recipe\n`;
+    output+=`\n=== BP: items/${itemId}.json ===\n- Weapon with damage & durability\n`;
+    if(hasGlint)output+="- Glint enabled\n";
+    if(hitEffectCount>0||selfEffectCount>0||killEffectCount>0){
+        output+=`\n=== scripts/${itemId}_effects.js ===\n`;
+        if(hitEffectCount>0)output+=`- ${hitEffectCount} hit effects w/ probability\n`;
+        if(selfEffectCount>0)output+=`- ${selfEffectCount} self buffs\n`;
+        if(killEffectCount>0)output+=`- ${killEffectCount} kill effects\n`;
+    }
+    if(recipeType!=='none')output+=`\n=== recipes/${itemId}_recipe.json ===\n- With unlock array\n`;
+    output+=`\n=== RP ===\n- textures/items/${itemId}.png\n- texts/en_US.lang`;
+    return output;
+}
+
+function initCraftingGrid(){
+    const grid=document.getElementById('craftingGrid');
+    grid.innerHTML='';
+    for(let i=0;i<9;i++){
+        const slot=document.createElement('div');
+        slot.className='crafting-slot';
+        slot.dataset.index=i;
+        slot.onclick=()=>selectSlot(i);
+        grid.appendChild(slot);
+    }
+    updateCraftingGrid();
+}
+
+function selectSlot(index){
+    selectedSlot=index;
+    document.querySelectorAll('.crafting-slot').forEach((s,i)=>{
+        s.classList.toggle('sel',i===index);
+    });
+}
+
+function updateCraftingGrid(){
+    document.querySelectorAll('.crafting-slot').forEach((slot,i)=>{
+        if(craftingPattern[i]){
+            slot.textContent=craftingPattern[i].split(':')[1]||craftingPattern[i];
+            slot.className='crafting-slot filled'+(selectedSlot===i?' sel':'');
+        } else {
+            slot.textContent='';
+            slot.className='crafting-slot'+(selectedSlot===i?' sel':'');
+        }
+    });
+}
+
+function clearSelectedSlot(){
+    if(selectedSlot!==null){craftingPattern[selectedSlot]=null;updateCraftingGrid();}
+}
+
+const ingredientSelect=document.getElementById('ingredientSelect');
+const defOpt=document.createElement('option');
+defOpt.value='';defOpt.textContent='-- Select Item --';
+ingredientSelect.appendChild(defOpt);
+minecraftItems.forEach(item=>{
+    const o=document.createElement('option');
+    o.value=item;o.textContent=item.replace('minecraft:','').replace(/_/g,' ');
+    ingredientSelect.appendChild(o);
+});
+const custOpt=document.createElement('option');
+custOpt.value='CUSTOM';custOpt.textContent='-- Type Custom Item ID --';
+ingredientSelect.appendChild(custOpt);
+
+ingredientSelect.addEventListener('change',e=>{
+    if(selectedSlot!==null&&e.target.value){
+        if(e.target.value==='CUSTOM'){
+            const c=prompt('Enter custom item ID (e.g. minecraft:stone or custom:my_item):');
+            if(c&&c.trim()){craftingPattern[selectedSlot]=c.trim();updateCraftingGrid();}
+        } else {
+            craftingPattern[selectedSlot]=e.target.value;updateCraftingGrid();
+        }
+    }
+});
+
+function setRecipeType(type){
+    recipeType=type;
+    ['none','shaped','shapeless'].forEach(t=>{
+        const btn=document.getElementById(`btn-${t}`);
+        btn.className=`btn ${t===type?'btn-t on':'btn-dim'}`;
+    });
+    document.getElementById('recipeContainer').style.display=type==='none'?'none':'block';
+    document.getElementById('shapedRecipe').style.display=type==='shaped'?'block':'none';
+    document.getElementById('shapelessRecipe').style.display=type==='shapeless'?'block':'none';
+    if(type==='shaped')initCraftingGrid();
+}
+
+function effectOptions(){
+    return effects.map(e=>`<option value="${e}">${e.replace(/_/g,' ')}</option>`).join('');
+}
+
+function addHitEffect(){
+    hitEffectCount++;
+    const id=hitEffectCount;
+    const box=document.createElement('div');
+    box.className='efbox';box.id=`hiteffect-${id}`;
+    box.innerHTML=`
+      <div class="efhdr"><span>💥 HIT EFFECT ${id}</span>
+        <button class="btn btn-r btn-sm" onclick="document.getElementById('hiteffect-${id}').remove();hitEffectCount--">REMOVE</button></div>
+      <div class="row2">
+        <div class="fr"><label>Effect Type</label><select class="fi" id="hiteffectType-${id}">${effectOptions()}</select></div>
+        <div class="fr"><label>Duration (seconds)</label><input type="number" class="fi" id="hiteffectDuration-${id}" value="5" min="1" max="999"></div>
+        <div class="fr"><label>Amplifier (0=Level I)</label><input type="number" class="fi" id="hiteffectAmplifier-${id}" value="0" min="0" max="10"></div>
+        <div class="fr"><label>Chance (%)</label><input type="number" class="fi" id="hiteffectChance-${id}" value="100" min="1" max="100">
+          <div class="note">100 = always · 50 = 50% chance</div></div>
+      </div>`;
+    document.getElementById('hitEffectsContainer').appendChild(box);
+}
+
+function addSelfEffect(){
+    selfEffectCount++;
+    const id=selfEffectCount;
+    const box=document.createElement('div');
+    box.className='efbox';box.id=`selfeffect-${id}`;
+    box.innerHTML=`
+      <div class="efhdr"><span>✨ SELF EFFECT ${id}</span>
+        <button class="btn btn-r btn-sm" onclick="document.getElementById('selfeffect-${id}').remove();selfEffectCount--">REMOVE</button></div>
+      <div class="row2">
+        <div class="fr"><label>Effect Type</label><select class="fi" id="selfeffectType-${id}">${effectOptions()}</select></div>
+        <div class="fr"><label>Duration (seconds)</label><input type="number" class="fi" id="selfeffectDuration-${id}" value="3" min="1" max="999"></div>
+        <div class="fr"><label>Amplifier (0=Level I)</label><input type="number" class="fi" id="selfeffectAmplifier-${id}" value="0" min="0" max="10"></div>
+        <div class="fr"><label>Chance (%)</label><input type="number" class="fi" id="selfeffectChance-${id}" value="100" min="1" max="100">
+          <div class="note">100 = always · 50 = 50% chance</div></div>
+      </div>`;
+    document.getElementById('selfEffectsContainer').appendChild(box);
+}
+
+function addKillEffect(){
+    killEffectCount++;
+    const id=killEffectCount;
+    const box=document.createElement('div');
+    box.className='efbox';box.id=`killeffect-${id}`;
+    box.innerHTML=`
+      <div class="efhdr"><span>💀 KILL EFFECT ${id}</span>
+        <button class="btn btn-r btn-sm" onclick="document.getElementById('killeffect-${id}').remove();killEffectCount--">REMOVE</button></div>
+      <div class="row2">
+        <div class="fr"><label>Effect Type</label><select class="fi" id="killeffectType-${id}">${effectOptions()}</select></div>
+        <div class="fr"><label>Duration (seconds)</label><input type="number" class="fi" id="killeffectDuration-${id}" value="10" min="1" max="999"></div>
+        <div class="fr"><label>Amplifier (0=Level I)</label><input type="number" class="fi" id="killeffectAmplifier-${id}" value="0" min="0" max="10"></div>
+        <div class="fr"><label>Chance (%)</label><input type="number" class="fi" id="killeffectChance-${id}" value="100" min="1" max="100">
+          <div class="note">100 = always · 50 = 50% chance</div></div>
+      </div>`;
+    document.getElementById('killEffectsContainer').appendChild(box);
+}
+
+function addHoldEffect(){
+    holdEffectCount++;
+    const id=holdEffectCount;
+    const box=document.createElement('div');
+    box.className='efbox';box.id=`holdeffect-${id}`;
+    box.innerHTML=`
+      <div class="efhdr"><span>✋ HOLDING EFFECT ${id}</span>
+        <button class="btn btn-r btn-sm" onclick="document.getElementById('holdeffect-${id}').remove();holdEffectCount--">REMOVE</button></div>
+      <div class="row2">
+        <div class="fr"><label>Effect Type</label><select class="fi" id="holdeffectType-${id}">${effectOptions()}</select></div>
+        <div class="fr"><label>Amplifier (0=Level I)</label><input type="number" class="fi" id="holdeffectAmplifier-${id}" value="0" min="0" max="10"></div>
+      </div>
+      <div class="note-t" style="margin-top:6px;">Refreshed every second while weapon is held</div>`;
+    document.getElementById('holdEffectsContainer').appendChild(box);
+}
+
+function addShapelessIngredient(){
+    if(shapelessCount>=9){alert('Maximum 9 ingredients!');return;}
+    shapelessCount++;
+    const id=shapelessCount;
+    let itemOptions=minecraftItems.map(item=>`<option value="${item}">${item.replace('minecraft:','').replace(/_/g,' ')}</option>`).join('');
+    itemOptions+=`<option value="CUSTOM">-- Custom Item ID --</option>`;
+    const box=document.createElement('div');
+    box.className='ingbox';box.id=`ingredient-${id}`;
+    box.innerHTML=`
+      <div class="inghdr"><span>INGREDIENT ${id}</span>
+        <button class="btn btn-r btn-sm" onclick="document.getElementById('ingredient-${id}').remove();shapelessCount--;document.getElementById('addIngredientBtn').disabled=false;document.getElementById('addIngredientBtn').style.opacity='1'">REMOVE</button></div>
+      <div class="row2">
+        <div class="fr"><label>Item</label>
+          <select class="fi" id="ingredientItem-${id}" style="font-size:14px;" onchange="handleShapelessItemChange(${id})">${itemOptions}</select>
+          <input type="text" class="fi" id="ingredientItemCustom-${id}" placeholder="e.g. custom:my_item" style="display:none;margin-top:4px;font-size:14px;">
+        </div>
+        <div class="fr"><label>Count</label><input type="number" class="fi" id="ingredientCount-${id}" value="1" min="1" max="64"></div>
+      </div>`;
+    document.getElementById('shapelessContainer').appendChild(box);
+    if(shapelessCount>=9){
+        const btn=document.getElementById('addIngredientBtn');
+        btn.disabled=true;btn.style.opacity='0.4';
+    }
+}
+
+function handleShapelessItemChange(id){
+    const sel=document.getElementById(`ingredientItem-${id}`);
+    const cust=document.getElementById(`ingredientItemCustom-${id}`);
+    cust.style.display=sel.value==='CUSTOM'?'block':'none';
+    if(sel.value==='CUSTOM')cust.focus();
+    else cust.value='';
+}
+
+function drawGrid(){
+    ctx.strokeStyle='rgba(40,224,192,0.12)';
+    ctx.lineWidth=0.5;
+    for(let i=0;i<=gridSize;i++){
+        ctx.beginPath();ctx.moveTo(i*pixelSize,0);ctx.lineTo(i*pixelSize,canvas.height);ctx.stroke();
+        ctx.beginPath();ctx.moveTo(0,i*pixelSize);ctx.lineTo(canvas.width,i*pixelSize);ctx.stroke();
+    }
+}
+
+function drawPixel(x,y,color){
+    ctx.fillStyle=color;
+    ctx.fillRect(x*pixelSize,y*pixelSize,pixelSize,pixelSize);
+    pixelData[y][x]=color;
+    drawGrid();
+}
+
+canvas.addEventListener('mousedown',e=>{isDrawing=true;draw(e);});
+canvas.addEventListener('mousemove',e=>{if(isDrawing)draw(e);});
+canvas.addEventListener('mouseup',()=>isDrawing=false);
+canvas.addEventListener('mouseleave',()=>isDrawing=false);
+
+function draw(e){
+    const rect=canvas.getBoundingClientRect();
+    const scaleX=canvas.width/rect.width,scaleY=canvas.height/rect.height;
+    const x=Math.floor((e.clientX-rect.left)*scaleX/pixelSize);
+    const y=Math.floor((e.clientY-rect.top)*scaleY/pixelSize);
+    if(x>=0&&x<gridSize&&y>=0&&y<gridSize)
+        drawPixel(x,y,document.getElementById('colorPicker').value);
+}
+
+document.getElementById('colorPicker').addEventListener('input',e=>{
+    document.getElementById('colorDisplay').textContent=e.target.value;
+});
+
+function clearCanvas(){
+    ctx.fillStyle='#07070e';ctx.fillRect(0,0,canvas.width,canvas.height);
+    pixelData=Array(gridSize).fill(null).map(()=>Array(gridSize).fill('rgba(0,0,0,0)'));
+    drawGrid();
+}
+
+function fillCanvas(){
+    const color=document.getElementById('colorPicker').value;
+    for(let y=0;y<gridSize;y++)for(let x=0;x<gridSize;x++)drawPixel(x,y,color);
+}
+
+function importImage(){document.getElementById('imageUpload').click();}
+
+document.getElementById('imageUpload').addEventListener('change',e=>{
+    const file=e.target.files[0];
+    if(!file)return;
+    const reader=new FileReader();
+    reader.onload=ev=>{
+        const img=new Image();
+        img.onload=()=>{
+            const tc=document.createElement('canvas');tc.width=tc.height=gridSize;
+            const tx=tc.getContext('2d');tx.drawImage(img,0,0,gridSize,gridSize);
+            const d=tx.getImageData(0,0,gridSize,gridSize);
+            clearCanvas();
+            for(let y=0;y<gridSize;y++)for(let x=0;x<gridSize;x++){
+                const i=(y*gridSize+x)*4;
+                if(d.data[i+3]>0)drawPixel(x,y,`rgba(${d.data[i]},${d.data[i+1]},${d.data[i+2]},${d.data[i+3]/255})`);
+            }
+        };
+        img.src=ev.target.result;
+    };
+    reader.readAsDataURL(file);
+});
+
+function generateUUID(){
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{
+        const r=Math.random()*16|0;return(c==='x'?r:(r&3|8)).toString(16);
+    });
+}
+
+function canvasToBlob(){
+    return new Promise(resolve=>{
+        const tc=document.createElement('canvas');tc.width=tc.height=gridSize;
+        const tx=tc.getContext('2d');
+        for(let y=0;y<gridSize;y++)for(let x=0;x<gridSize;x++){
+            tx.fillStyle=pixelData[y][x];tx.fillRect(x,y,1,1);
+        }
+        tc.toBlob(resolve);
+    });
+}
+
+async function generateAddon(){
+    const addonName=document.getElementById('addonName').value;
+    const addonDesc=document.getElementById('addonDesc').value;
+    const itemName=document.getElementById('itemName').value;
+    const itemId=document.getElementById('itemId').value.replace(/\s+/g,'_').toLowerCase();
+    const damage=parseInt(document.getElementById('damage').value);
+    const durability=parseInt(document.getElementById('durability').value);
+    const enchantability=parseInt(document.getElementById('enchantability').value);
+    const hasGlint=document.getElementById('hasGlint').checked;
+    const lightningStrike=document.getElementById('lightningStrike').checked;
+
+    const bpHeaderUUID=generateUUID(),bpModuleUUID=generateUUID();
+    const rpHeaderUUID=generateUUID(),rpModuleUUID=generateUUID();
+
+    const hitEffects=[],selfEffects=[],killEffects=[],holdEffects=[];
+
+    for(let i=1;i<=hitEffectCount;i++){
+        if(document.getElementById(`hiteffect-${i}`))
+            hitEffects.push({type:document.getElementById(`hiteffectType-${i}`).value,duration:parseInt(document.getElementById(`hiteffectDuration-${i}`).value),amplifier:parseInt(document.getElementById(`hiteffectAmplifier-${i}`).value),chance:parseInt(document.getElementById(`hiteffectChance-${i}`).value)});
+    }
+    for(let i=1;i<=selfEffectCount;i++){
+        if(document.getElementById(`selfeffect-${i}`))
+            selfEffects.push({type:document.getElementById(`selfeffectType-${i}`).value,duration:parseInt(document.getElementById(`selfeffectDuration-${i}`).value),amplifier:parseInt(document.getElementById(`selfeffectAmplifier-${i}`).value),chance:parseInt(document.getElementById(`selfeffectChance-${i}`).value)});
+    }
+    for(let i=1;i<=killEffectCount;i++){
+        if(document.getElementById(`killeffect-${i}`))
+            killEffects.push({type:document.getElementById(`killeffectType-${i}`).value,duration:parseInt(document.getElementById(`killeffectDuration-${i}`).value),amplifier:parseInt(document.getElementById(`killeffectAmplifier-${i}`).value),chance:parseInt(document.getElementById(`killeffectChance-${i}`).value)});
+    }
+    for(let i=1;i<=holdEffectCount;i++){
+        if(document.getElementById(`holdeffect-${i}`))
+            holdEffects.push({type:document.getElementById(`holdeffectType-${i}`).value,amplifier:parseInt(document.getElementById(`holdeffectAmplifier-${i}`).value)});
+    }
+
+    const hasEffects=hitEffects.length>0||selfEffects.length>0||killEffects.length>0||lightningStrike||holdEffects.length>0;
+
+    const bpManifest={format_version:2,header:{name:addonName,description:addonDesc,uuid:bpHeaderUUID,version:[1,0,0],min_engine_version:[1,20,50]},modules:[{type:"data",uuid:bpModuleUUID,version:[1,0,0]}],dependencies:[{uuid:rpHeaderUUID,version:[1,0,0]}]};
+    if(hasEffects){
+        bpManifest.modules.push({type:"script",language:"javascript",uuid:generateUUID(),version:[1,0,0],entry:`scripts/${itemId}_effects.js`});
+        bpManifest.dependencies.push({module_name:"@minecraft/server",version:"1.8.0"});
+    }
+
+    const rpManifest={format_version:2,header:{name:addonName+" Resources",description:"Textures for "+addonName,uuid:rpHeaderUUID,version:[1,0,0],min_engine_version:[1,20,50]},modules:[{type:"resources",uuid:rpModuleUUID,version:[1,0,0]}]};
+
+    const itemComponents={"minecraft:icon":{texture:itemId},"minecraft:display_name":{value:itemName},"minecraft:max_stack_size":1,"minecraft:hand_equipped":true,"minecraft:damage":damage,"minecraft:durability":{max_durability:durability},"minecraft:enchantable":{value:enchantability,slot:"sword"},"minecraft:tags":{tags:["minecraft:is_sword"]}};
+    if(hasGlint)itemComponents["minecraft:glint"]=true;
+
+    const itemJson={format_version:"1.20.50","minecraft:item":{description:{identifier:`custom:${itemId}`,menu_category:{category:"equipment",group:"itemGroup.name.sword"}},components:itemComponents}};
+    const textureJson={resource_pack_name:addonName,texture_name:"atlas.items",texture_data:{}};
+    textureJson.texture_data[itemId]={textures:`textures/items/${itemId}`};
+
+    const iconCanvas=document.createElement('canvas');iconCanvas.width=iconCanvas.height=256;
+    const iconCtx=iconCanvas.getContext('2d');
+    iconCtx.fillStyle='#07070e';iconCtx.fillRect(0,0,256,256);
+    iconCtx.fillStyle='#f0a830';iconCtx.font='bold 120px serif';
+    iconCtx.textAlign='center';iconCtx.textBaseline='middle';iconCtx.fillText('⚔',128,128);
+
+    const zip=new JSZip();
+    const bpFolder=zip.folder(addonName+" BP");
+    bpFolder.file('manifest.json',JSON.stringify(bpManifest,null,2));
+    bpFolder.file(`items/${itemId}.json`,JSON.stringify(itemJson,null,2));
+
+    if(hasEffects){
+        const script=`import { world, system } from '@minecraft/server';
 const lastAttacker = new Map();
-
-${holdEffects.length > 0 ? `// Apply passive holding effects every second
+${holdEffects.length>0?`
 system.runInterval(() => {
     for (const player of world.getAllPlayers()) {
         try {
-            const equipment = player.getComponent('equippable');
-            if (!equipment) continue;
-            
-            const weapon = equipment.getEquipment('Mainhand');
-            if (!weapon || weapon.typeId !== 'custom:${itemId}') continue;
-            
-            // Apply holding effects (refresh every second, 2 second duration)
-${holdEffects.map(eff => `            player.addEffect('minecraft:${eff.type}', 40, { 
-                amplifier: ${eff.amplifier}, 
-                showParticles: false 
-            });`).join('\n')}
-        } catch (e) {}
+            const eq = player.getComponent('equippable');
+            const w = eq && eq.getEquipment('Mainhand');
+            if (!w || w.typeId !== 'custom:${itemId}') continue;
+${holdEffects.map(e=>`            player.addEffect('minecraft:${e.type}', 40, { amplifier: ${e.amplifier}, showParticles: false });`).join('\n')}
+        } catch(e) {}
     }
-}, 20); // Run every 20 ticks (1 second)
-
-` : ''}// Handle weapon hits
+}, 20);
+`:''}
 world.afterEvents.entityHitEntity.subscribe((event) => {
     const { damagingEntity, hitEntity } = event;
-    
     if (!damagingEntity || damagingEntity.typeId !== 'minecraft:player') return;
-    
-    const equipment = damagingEntity.getComponent('equippable');
-    if (!equipment) return;
-    
-    const weapon = equipment.getEquipment('Mainhand');
-    if (!weapon || weapon.typeId !== 'custom:${itemId}') return;
-    
-    // Track this player as the last attacker of this entity
+    const eq = damagingEntity.getComponent('equippable');
+    const w = eq && eq.getEquipment('Mainhand');
+    if (!w || w.typeId !== 'custom:${itemId}') return;
     lastAttacker.set(hitEntity.id, damagingEntity);
-    
-${lightningStrike ? `    // Give resistance FIRST, then spawn lightning after 1 tick delay
-    try {
-        // Apply Resistance III immediately
+${lightningStrike?`    try {
         damagingEntity.addEffect('minecraft:resistance', 8, { amplifier: 2, showParticles: false });
-        
-        // Spawn lightning 1 tick later to ensure resistance is active
-        const hitLocation = hitEntity.location;
-        const dimension = hitEntity.dimension;
-        system.runTimeout(() => {
-            try {
-                dimension.spawnEntity('minecraft:lightning_bolt', hitLocation);
-            } catch (e) {}
-        }, 1);
-    } catch (e) {}
-    
-` : ''}    // Apply hit effects to target
-${hitEffects.map(eff => `    if (Math.random() * 100 < ${eff.chance}) {
-        try {
-            hitEntity.addEffect('minecraft:${eff.type}', ${eff.duration * 20}, { 
-                amplifier: ${eff.amplifier}, 
-                showParticles: true 
-            });
-        } catch (e) {}
-    }`).join('\n')}
-    
-    // Apply self effects to attacker
-${selfEffects.map(eff => `    if (Math.random() * 100 < ${eff.chance}) {
-        try {
-            damagingEntity.addEffect('minecraft:${eff.type}', ${eff.duration * 20}, { 
-                amplifier: ${eff.amplifier}, 
-                showParticles: true 
-            });
-        } catch (e) {}
-    }`).join('\n')}
+        const loc = hitEntity.location, dim = hitEntity.dimension;
+        system.runTimeout(() => { try { dim.spawnEntity('minecraft:lightning_bolt', loc); } catch(e){} }, 1);
+    } catch(e) {}
+`:''}${hitEffects.map(e=>`    if (Math.random() * 100 < ${e.chance}) { try { hitEntity.addEffect('minecraft:${e.type}', ${e.duration*20}, { amplifier: ${e.amplifier}, showParticles: true }); } catch(e) {} }`).join('\n')}
+${selfEffects.map(e=>`    if (Math.random() * 100 < ${e.chance}) { try { damagingEntity.addEffect('minecraft:${e.type}', ${e.duration*20}, { amplifier: ${e.amplifier}, showParticles: true }); } catch(e) {} }`).join('\n')}
 });
 
-// Handle entity death for kill effects
 world.afterEvents.entityDie.subscribe((event) => {
     const { deadEntity } = event;
-    
-    // Check if this entity was killed by a player with our weapon
     const killer = lastAttacker.get(deadEntity.id);
     if (!killer) return;
-    
-    // Clean up the tracking
     lastAttacker.delete(deadEntity.id);
-    
-    // Verify killer still has the weapon equipped
     try {
-        const equipment = killer.getComponent('equippable');
-        if (!equipment) return;
-        
-        const weapon = equipment.getEquipment('Mainhand');
-        if (!weapon || weapon.typeId !== 'custom:${itemId}') return;
-        
-        // Apply kill effects to the killer
-${killEffects.map(eff => `        if (Math.random() * 100 < ${eff.chance}) {
-            killer.addEffect('minecraft:${eff.type}', ${eff.duration * 20}, { 
-                amplifier: ${eff.amplifier}, 
-                showParticles: true 
-            });
-        }`).join('\n')}
-    } catch (e) {}
+        const eq = killer.getComponent('equippable');
+        const w = eq && eq.getEquipment('Mainhand');
+        if (!w || w.typeId !== 'custom:${itemId}') return;
+${killEffects.map(e=>`        if (Math.random() * 100 < ${e.chance}) { killer.addEffect('minecraft:${e.type}', ${e.duration*20}, { amplifier: ${e.amplifier}, showParticles: true }); }`).join('\n')}
+    } catch(e) {}
 });`;
-                
-                bpFolder.file(`scripts/${itemId}_effects.js`, scriptContent);
+        bpFolder.file(`scripts/${itemId}_effects.js`,script);
+    }
+
+    const iconBlob=await new Promise(r=>iconCanvas.toBlob(r));
+    bpFolder.file('pack_icon.png',iconBlob);
+
+    const rpFolder=zip.folder(addonName+" RP");
+    rpFolder.file('manifest.json',JSON.stringify(rpManifest,null,2));
+    rpFolder.file('textures/item_texture.json',JSON.stringify(textureJson,null,2));
+    rpFolder.file('texts/en_US.lang',`item.custom:${itemId}.name=${itemName}`);
+    rpFolder.file(`textures/items/${itemId}.png`,await canvasToBlob());
+    rpFolder.file('pack_icon.png',iconBlob);
+
+    if(recipeType==='shaped'){
+        const hasIng=craftingPattern.some(i=>i!==null);
+        if(hasIng){
+            const pattern=[],key={};const chars='ABCDEFGHI';let ci=0;const i2c={};
+            for(let row=0;row<3;row++){
+                let rp='';
+                for(let col=0;col<3;col++){
+                    const item=craftingPattern[row*3+col];
+                    if(item){if(!i2c[item]){i2c[item]=chars[ci++];key[i2c[item]]={item};}rp+=i2c[item];}
+                    else rp+=' ';
+                }
+                pattern.push(rp);
             }
-            
-            const iconBlob = await new Promise(resolve => iconCanvas.toBlob(resolve));
-            bpFolder.file('pack_icon.png', iconBlob);
-            
-            const rpFolder = zip.folder(addonName + " RP");
-            rpFolder.file('manifest.json', JSON.stringify(rpManifest, null, 2));
-            rpFolder.file('textures/item_texture.json', JSON.stringify(textureJson, null, 2));
-            rpFolder.file('texts/en_US.lang', langFile);
-            
-            const textureBlob = await canvasToBlob();
-            rpFolder.file(`textures/items/${itemId}.png`, textureBlob);
-            rpFolder.file('pack_icon.png', iconBlob);
-            
-            // Recipe generation
-            if (recipeType === 'shaped') {
-                const hasIngredients = craftingPattern.some(item => item !== null);
-                if (hasIngredients) {
-                    const pattern = [];
-                    const key = {};
-                    const patternChars = 'ABCDEFGHI';
-                    let charIndex = 0;
-                    const itemToChar = {};
-                    
-                    for (let row = 0; row < 3; row++) {
-                        let rowPattern = '';
-                        for (let col = 0; col < 3; col++) {
-                            const index = row * 3 + col;
-                            const item = craftingPattern[index];
-                            
-                            if (item) {
-                                if (!itemToChar[item]) {
-                                    itemToChar[item] = patternChars[charIndex++];
-                                    key[itemToChar[item]] = { item: item };
-                                }
-                                rowPattern += itemToChar[item];
-                            } else {
-                                rowPattern += ' ';
-                            }
-                        }
-                        pattern.push(rowPattern);
-                    }
-                    
-                    const uniqueIngredients = [...new Set(craftingPattern.filter(i => i))];
-                    const unlockArray = uniqueIngredients.map(item => ({ item: item }));
-                    
-                    const recipeJson = {
-                        format_version: "1.20.50",
-                        "minecraft:recipe_shaped": {
-                            description: {
-                                identifier: `custom:${itemId}_recipe`
-                            },
-                            tags: ["crafting_table"],
-                            pattern: pattern,
-                            key: key,
-                            unlock: unlockArray,
-                            result: {
-                                item: `custom:${itemId}`,
-                                count: 1
-                            }
-                        }
-                    };
-                    
-                    bpFolder.file(`recipes/${itemId}_recipe.json`, JSON.stringify(recipeJson, null, 2));
-                }
-            } else if (recipeType === 'shapeless') {
-                const ingredients = [];
-                const uniqueItems = new Set();
-                
-                for (let i = 1; i <= shapelessCount; i++) {
-                    const ingredientBox = document.getElementById(`ingredient-${i}`);
-                    if (ingredientBox) {
-                        const select = document.getElementById(`ingredientItem-${i}`);
-                        const customInput = document.getElementById(`ingredientItemCustom-${i}`);
-                        
-                        let item;
-                        if (select.value === 'CUSTOM') {
-                            item = customInput.value.trim();
-                            if (!item) continue;
-                        } else {
-                            item = select.value;
-                        }
-                        
-                        const count = parseInt(document.getElementById(`ingredientCount-${i}`).value);
-                        
-                        uniqueItems.add(item);
-                        
-                        for (let j = 0; j < count; j++) {
-                            ingredients.push({ item: item });
-                        }
-                    }
-                }
-                
-                if (ingredients.length > 0) {
-                    const unlockArray = Array.from(uniqueItems).map(item => ({ item: item }));
-                    
-                    const recipeJson = {
-                        format_version: "1.20.50",
-                        "minecraft:recipe_shapeless": {
-                            description: {
-                                identifier: `custom:${itemId}_recipe`
-                            },
-                            tags: ["crafting_table"],
-                            ingredients: ingredients,
-                            unlock: unlockArray,
-                            result: {
-                                item: `custom:${itemId}`,
-                                count: 1
-                            }
-                        }
-                    };
-                    
-                    bpFolder.file(`recipes/${itemId}_recipe.json`, JSON.stringify(recipeJson, null, 2));
-                }
-            }
-            
-            const content = await zip.generateAsync({type: 'blob'});
-            const url = URL.createObjectURL(content);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `${itemId}_addon.mcaddon`;
-            a.click();
-            URL.revokeObjectURL(url);
-            
-            let features = [];
-            features.push(`⚔️ Damage: ${damage}`);
-            features.push(`🛡️ Durability: ${durability}`);
-            if (hasGlint) features.push('✨ Enchantment Glint');
-            if (lightningStrike) features.push('⚡ Lightning Strike on Hit');
-            if (holdEffects.length > 0) features.push(`✋ ${holdEffects.length} Holding Effects`);
-            if (hitEffects.length > 0) features.push(`💥 ${hitEffects.length} Hit Effects`);
-            if (selfEffects.length > 0) features.push(`✨ ${selfEffects.length} Self Buffs`);
-            if (killEffects.length > 0) features.push(`💀 ${killEffects.length} Kill Effects`);
-            if (recipeType !== 'none') features.push('✅ Crafting Recipe');
-            
-            alert(`🎉 WEAPON ADDON GENERATED!\n\n${features.join('\n')}\n\n📦 Installation:\n1. Open the .mcaddon file\n2. Both packs import automatically\n3. Create new world\n4. Enable BOTH behavior & resource packs\n${hasEffects ? '5. Enable "Beta APIs" experiment\n6' : '5'}. Use: /give @s custom:${itemId}\n\n⚔️ Attack enemies to trigger effects!`);
+            const unique=[...new Set(craftingPattern.filter(i=>i))];
+            bpFolder.file(`recipes/${itemId}_recipe.json`,JSON.stringify({format_version:"1.20.50","minecraft:recipe_shaped":{description:{identifier:`custom:${itemId}_recipe`},tags:["crafting_table"],pattern,key,unlock:unique.map(item=>({item})),result:{item:`custom:${itemId}`,count:1}}},null,2));
         }
-    </script>
+    } else if(recipeType==='shapeless'){
+        const ingredients=[],unique=new Set();
+        for(let i=1;i<=shapelessCount;i++){
+            if(!document.getElementById(`ingredient-${i}`))continue;
+            const sel=document.getElementById(`ingredientItem-${i}`);
+            const cust=document.getElementById(`ingredientItemCustom-${i}`);
+            const item=sel.value==='CUSTOM'?cust.value.trim():sel.value;
+            if(!item)continue;
+            unique.add(item);
+            const count=parseInt(document.getElementById(`ingredientCount-${i}`).value);
+            for(let j=0;j<count;j++)ingredients.push({item});
+        }
+        if(ingredients.length>0)
+            bpFolder.file(`recipes/${itemId}_recipe.json`,JSON.stringify({format_version:"1.20.50","minecraft:recipe_shapeless":{description:{identifier:`custom:${itemId}_recipe`},tags:["crafting_table"],ingredients,unlock:[...unique].map(item=>({item})),result:{item:`custom:${itemId}`,count:1}}},null,2));
+    }
+
+    const blob=await zip.generateAsync({type:'blob'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');a.href=url;a.download=`${itemId}_addon.mcaddon`;a.click();
+    URL.revokeObjectURL(url);
+
+    const feats=[];
+    feats.push(`⚔ Damage: ${damage}`);feats.push(`🛡 Durability: ${durability}`);
+    if(hasGlint)feats.push('✨ Enchantment Glint');
+    if(lightningStrike)feats.push('⚡ Lightning Strike');
+    if(holdEffects.length)feats.push(`✋ ${holdEffects.length} Holding Effects`);
+    if(hitEffects.length)feats.push(`💥 ${hitEffects.length} Hit Effects`);
+    if(selfEffects.length)feats.push(`✨ ${selfEffects.length} Self Buffs`);
+    if(killEffects.length)feats.push(`💀 ${killEffects.length} Kill Effects`);
+    if(recipeType!=='none')feats.push('✅ Crafting Recipe');
+    alert(`✅ WEAPON ADDON GENERATED!\n\n${feats.join('\n')}\n\n📋 INSTALL:\n1. Open the .mcaddon file\n2. Enable BOTH packs in a new world\n3. /give @s custom:${itemId}`);
+}
+</script>
 </body>
 </html>
